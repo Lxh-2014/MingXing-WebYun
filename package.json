@@ -1,6 +1,6 @@
 {
-  "name": "web-yun",
-  "version": "1.0.0",
+  "name": "mingxing-webyun",
+  "version": "1.0.1",
   "description": "明星云网盘",
   "main": "server/index.js",
   "scripts": {

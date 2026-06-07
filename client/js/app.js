@@ -1,14 +1,17 @@
-﻿﻿/*
-明星云网盘 - 纯 JavaScript 动态网盘应用
-*/
-const App = {
+﻿const App = {
     username: null,
+    userId: null,
     currentPage: 'login',
+    locales: null,
 
-    init() {
+    async init() {
+        // 加载语言文件
+        await this.loadLocales();
+
         window.addEventListener('popstate', (e) => this.handlePopState(e));
 
         this.username = localStorage.getItem('username');
+        this.userId = localStorage.getItem('userId');
 
         const route = this.parseUrl();
 
@@ -36,8 +39,8 @@ const App = {
             // 如果 URL 中没有路径，但 localStorage 中有，使用 localStorage 中的值
             this.currentFolderPath = localStorage.getItem('currentFolderPath');
         } else {
-            // 默认使用根目录
-            this.currentFolderPath = 'D:\\Web_yun\\files';
+            // 默认使用根目录，稍后从服务器获取
+            this.currentFolderPath = null;
         }
 
         // 初始化深色模式
@@ -46,7 +49,77 @@ const App = {
             document.body.classList.add('dark-mode');
         }
 
+        // 获取文件根目录
+        await this.loadFilesRoot();
+
         this.render();
+    },
+
+    /**
+     * 从服务器获取文件根目录
+     */
+    async loadFilesRoot() {
+        try {
+            const response = await fetch('/api/files/root');
+            const data = await response.json();
+            if (data.success) {
+                this.filesRoot = data.root;
+                // 如果 currentFolderPath 为 null，设置默认路径
+                if (!this.currentFolderPath) {
+                    this.currentFolderPath = this.filesRoot;
+                }
+            }
+        } catch (error) {
+            console.error(this.locales.app.errors.loadFilesRootFailed, error);
+            // 使用默认值
+            this.filesRoot = '';
+            if (!this.currentFolderPath) {
+                this.currentFolderPath = '';
+            }
+        }
+    },
+
+    /**
+     * 加载语言文件
+     */
+    async loadLocales() {
+        try {
+            const response = await fetch('/assets/lang/zh_cn.json');
+            this.locales = await response.json();
+            // 设置页面标题
+            if (this.locales.app && this.locales.app.title) {
+                document.title = this.locales.app.title;
+            }
+        } catch (error) {
+            console.error('加载语言文件失败:', error);
+            // 使用默认文本
+            this.locales = {
+                app: { 
+                    name: '明星云网盘', 
+                    title: '明星云网盘', 
+                    version: '1.0.1', 
+                    storagePath: './files',
+                    errors: { loadFilesRootFailed: '获取文件根目录失败' }
+                },
+                login: {
+                    title: '明星云网盘',
+                    subtitle: '登录以继续使用',
+                    submitBtn: '登 录',
+                    errorMsg: '登录失败，请检查用户名和密码'
+                },
+                files: { loading: '', empty: '没有文件', networkError: '网络错误' },
+                settings: {
+                    userInfoTitle: '用户信息',
+                    usernameLabel: '用户名',
+                    changeAvatarBtn: '修改头像',
+                    darkModeTitle: '深色模式',
+                    switchLabel: '启用深色模式',
+                    settingsTitle: '设置',
+                    logoutBtn: '退出登录'
+                }
+            };
+            document.title = this.locales.app.title;
+        }
     },
 
     navigate(page, folderPath = null) {
@@ -56,7 +129,7 @@ const App = {
         let url = '/';
         if (page === 'files') {
             if (folderPath) {
-                const filesRoot = 'D:\\Web_yun\\files';
+                const filesRoot = this.filesRoot;
                 let relativePath = folderPath.replace(filesRoot, '').replace(/\\/g, '/');
                 if (!relativePath.startsWith('/')) {
                     relativePath = '/' + relativePath;
@@ -101,7 +174,7 @@ const App = {
                 return { page: 'files', folderPath: null };
             } else {
                 const relativePath = decodeURIComponent(path.slice(7));
-                const filesRoot = 'D:\\Web_yun\\files';
+                const filesRoot = this.filesRoot;
                 const folderPath = filesRoot + relativePath.replace(/\//g, '\\');
                 return { page: 'files', folderPath };
             }
@@ -138,15 +211,14 @@ const App = {
         logo.className = 'login-logo';
 
         const logoImg = document.createElement('img');
-        logoImg.src = '/docs/icon.png';
-        logoImg.alt = '明星云网盘';
+        logoImg.src = '/assets/icon.png';
         logoImg.className = 'login-logo-img';
 
         const title = document.createElement('h1');
-        title.textContent = '明星云网盘';
+        title.textContent = this.locales.login.title;
 
         const subtitle = document.createElement('p');
-        subtitle.textContent = '登录以继续使用';
+        subtitle.textContent = this.locales.login.subtitle;
 
         const form = document.createElement('form');
         form.id = 'loginForm';
@@ -156,7 +228,7 @@ const App = {
         userInput.type = 'text';
         userInput.id = 'username';
         userInput.className = 'login-input';
-        userInput.placeholder = '请输入用户名';
+        userInput.placeholder = this.locales.login.usernamePlaceholder;
         userInput.autocomplete = 'username';
         userInput.required = true;
 
@@ -164,7 +236,7 @@ const App = {
         passInput.type = 'password';
         passInput.id = 'password';
         passInput.className = 'login-input';
-        passInput.placeholder = '请输入密码';
+        passInput.placeholder = this.locales.login.passwordPlaceholder;
         passInput.autocomplete = 'current-password';
         passInput.required = true;
 
@@ -175,7 +247,7 @@ const App = {
         const submitBtn = document.createElement('button');
         submitBtn.type = 'submit';
         submitBtn.className = 'btn btn-column2 login-btn';
-        submitBtn.textContent = '登 录';
+        submitBtn.textContent = this.locales.login.submitBtn;
 
         logo.appendChild(logoImg);
         logo.appendChild(title);
@@ -209,12 +281,26 @@ const App = {
                 if (data.success) {
                     localStorage.setItem('username', usernameVal);
                     this.username = usernameVal;
+                    
+                    // 保存用户ID
+                    if (data.userId) {
+                        localStorage.setItem('userId', data.userId);
+                        this.userId = data.userId;
+                    }
+                    
+                    // 保存头像URL
+                    if (data.avatar) {
+                        localStorage.setItem('avatarImage', data.avatar);
+                    } else {
+                        localStorage.removeItem('avatarImage');
+                    }
+                    
                     this.navigate('files');
                 } else {
-                    errorMsg.textContent = data.message || '登录失败';
+                    errorMsg.textContent = data.message || this.locales.login.errorMsg;
                 }
             } catch (error) {
-                errorMsg.textContent = '登录失败，请检查用户名和密码';
+                errorMsg.textContent = this.locales.login.errorMsg;
             }
         });
     },
@@ -261,8 +347,7 @@ const App = {
         logo.className = 'sidebar-logo';
         
         const logoImg = document.createElement('img');
-        logoImg.src = '/docs/icon.png';
-        logoImg.alt = '明星云网盘';
+        logoImg.src = '/assets/icon.png';
         logoImg.style.width = '100%';
         logoImg.style.height = '100%';
         logoImg.style.objectFit = 'cover';
@@ -270,13 +355,18 @@ const App = {
 
         const nav = document.createElement('nav');
         nav.className = 'sidebar-nav';
+        
+        // 创建指示器
+        const indicator = document.createElement('div');
+        indicator.className = 'nav-indicator';
+        nav.appendChild(indicator);
 
         const navItems = [
-            { id: 'files', icon: 'folder', text: '文件' },
-            { id: 'settings', icon: 'settings', text: '设置' }  
+            { id: 'files', icon: 'folder', text: this.locales.sidebar.files },
+            { id: 'settings', icon: 'settings', text: this.locales.sidebar.settings }  
         ];
 
-        navItems.forEach(item => {
+        navItems.forEach((item, index) => {
             const navItem = document.createElement('div');
             navItem.className = 'nav-item' + (item.id === activePage ? ' active' : '');
             navItem.innerHTML = this.getIcon(item.icon);
@@ -288,6 +378,16 @@ const App = {
                 }
             });
             nav.appendChild(navItem);
+            
+            // 设置指示器位置（按钮高度48px，间距8px，指示器高度24px，居中需要12px偏移）
+            if (item.id === activePage) {
+                const buttonTop = index * (48 + 8); // 每个按钮的顶部位置
+                const indicatorOffset = (48 - 24) / 2; // 指示器居中偏移
+                // 使用requestAnimationFrame触发CSS transition动画
+                requestAnimationFrame(() => {
+                    indicator.style.transform = `translateY(${buttonTop + indicatorOffset}px)`;
+                });
+            }
         });
 
         sidebar.appendChild(header);
@@ -311,7 +411,11 @@ const App = {
         const savedAvatarImage = localStorage.getItem('avatarImage');
         if (savedAvatarImage) {
             avatar.style.background = 'transparent';
-            avatar.style.backgroundImage = 'url(' + savedAvatarImage + ')';
+            // 如果是服务器头像URL，添加时间戳避免缓存
+            const imageUrl = savedAvatarImage.startsWith('/assets/') 
+                ? `${savedAvatarImage}?t=${Date.now()}` 
+                : savedAvatarImage;
+            avatar.style.backgroundImage = 'url(' + imageUrl + ')';
             avatar.style.backgroundSize = 'cover';
             avatar.style.backgroundPosition = 'center';
             avatar.textContent = '';
@@ -347,12 +451,12 @@ const App = {
 
         const uploadBtn = document.createElement('button');
         uploadBtn.className = 'toolbar-btn';
-        uploadBtn.innerHTML = this.getIcon('upload') + '<span>上传文件</span>';
+        uploadBtn.innerHTML = this.getIcon('upload') + `<span>${this.locales.toolbar.upload}</span>`;
         uploadBtn.addEventListener('click', () => document.getElementById('fileInput').click());
 
         const newFolderBtn = document.createElement('button');
         newFolderBtn.className = 'toolbar-btn';
-        newFolderBtn.innerHTML = this.getIcon('folder-plus') + '<span>创建新文件夹</span>';
+        newFolderBtn.innerHTML = this.getIcon('folder-plus') + `<span>${this.locales.toolbar.newFolder}</span>`;
         newFolderBtn.addEventListener('click', () => this.showNewFolderModal());
 
         actionButtons.appendChild(uploadBtn);
@@ -379,28 +483,28 @@ const App = {
         const backBtn = document.createElement('button');
         backBtn.className = 'nav-btn';
         backBtn.innerHTML = this.getIcon('arrow-left');
-        backBtn.title = '返回';
+        backBtn.title = this.locales.toolbar.back;
         backBtn.disabled = !this.canGoBack();
         backBtn.addEventListener('click', () => this.goBack());
 
         const forwardBtn = document.createElement('button');
         forwardBtn.className = 'nav-btn';
         forwardBtn.innerHTML = this.getIcon('arrow-right');
-        forwardBtn.title = '前进';
+        forwardBtn.title = this.locales.toolbar.forward;
         forwardBtn.disabled = !this.canGoForward();
         forwardBtn.addEventListener('click', () => this.goForward());
 
         const upBtn = document.createElement('button');
         upBtn.className = 'nav-btn';
         upBtn.innerHTML = this.getIcon('arrow-up');
-        upBtn.title = '向上';
+        upBtn.title = this.locales.toolbar.up;
         upBtn.disabled = !this.canGoUp();
         upBtn.addEventListener('click', () => this.goUp());
 
         const refreshBtn = document.createElement('button');
         refreshBtn.className = 'nav-btn';
         refreshBtn.innerHTML = this.getIcon('refresh');
-        refreshBtn.title = '刷新';
+        refreshBtn.title = this.locales.toolbar.refresh;
         refreshBtn.addEventListener('click', () => this.loadFiles(this.currentFolderPath));
 
         navButtons.appendChild(backBtn);
@@ -419,7 +523,7 @@ const App = {
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="m21 21-4.35-4.35"></path>
             </svg>
-            <input type="text" id="searchInput" placeholder="在此处搜索..." class="search-input">
+            <input type="text" id="searchInput" placeholder="${this.locales.toolbar.search}" class="search-input">
         `;
 
         const searchInput = searchBox.querySelector('.search-input');
@@ -451,12 +555,12 @@ const App = {
     },
 
     renderBreadcrumbs() {
-        const filesRoot = 'D:\\Web_yun\\files';
+        const filesRoot = this.filesRoot;
         let path = this.currentFolderPath || filesRoot;
         let relativePath = path.replace(filesRoot, '').replace(/\\/g, '/');
         
         if (!relativePath || relativePath === '/') {
-            return '<span class="breadcrumb-item active">根目录</span>';
+            return `<span class="breadcrumb-item active">${this.locales.toolbar.rootDir}</span>`;
         }
         
         if (!relativePath.startsWith('/')) {
@@ -465,7 +569,7 @@ const App = {
         
         const parts = relativePath.split('/').filter(p => p);
         let currentPath = filesRoot;
-        let html = '<span class="breadcrumb-item" data-path="">根目录</span>';
+        let html = `<span class="breadcrumb-item" data-path="">${this.locales.toolbar.rootDir}</span>`;
         
         parts.forEach((part, index) => {
             currentPath += '\\' + part;
@@ -509,7 +613,7 @@ const App = {
     },
 
     canGoUp() {
-        const filesRoot = 'D:\\Web_yun\\files';
+        const filesRoot = this.filesRoot;
         return this.currentFolderPath && this.currentFolderPath !== filesRoot;
     },
 
@@ -558,7 +662,7 @@ const App = {
         try {
             let url = '/api/files/list';
             if (folderPath) {
-                const filesRoot = 'D:\\Web_yun\\files';
+                const filesRoot = this.filesRoot;
                 let relativePath = folderPath.replace(filesRoot, '').replace(/\\/g, '/');
                 if (!relativePath.startsWith('/')) {
                     relativePath = '/' + relativePath;
@@ -574,10 +678,10 @@ const App = {
                 this.setupContextMenu();
                 this.setupBreadcrumbEvents();
             } else {
-                this.fileGridEl.innerHTML = '<div class="empty-state"><p>没有文件</p></div>';
+                this.fileGridEl.innerHTML = `<div class="empty-state"><p>${this.locales.toolbar.noFiles}</p></div>`;
             }
         } catch (error) {
-            this.fileGridEl.innerHTML = '<div class="empty-state"><p>网络错误</p></div>';
+            this.fileGridEl.innerHTML = `<div class="empty-state"><p>${this.locales.toolbar.networkError}</p></div>`;
         }
     },
 
@@ -591,7 +695,7 @@ const App = {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                     </svg>
-                    <p>没有文件</p>
+                    <p>${this.locales.toolbar.noFiles}</p>
                 </div>
             `;
             return;
@@ -708,19 +812,19 @@ const App = {
         menu.innerHTML = `
             <div class="context-menu-item" data-action="download">
                 ${this.getIcon('download')}
-                <span>下载</span>
+                <span>${this.locales.contextMenu.download}</span>
             </div>
             <div class="context-menu-item" data-action="rename">
                 ${this.getIcon('edit')}
-                <span>重命名</span>
+                <span>${this.locales.contextMenu.rename}</span>
             </div>
             <div class="context-menu-item" data-action="info">
                 ${this.getIcon('info')}
-                <span>详细信息</span>
+                <span>${this.locales.contextMenu.info}</span>
             </div>
             <div class="context-menu-item danger" data-action="delete">
                 ${this.getIcon('trash')}
-                <span>删除</span>
+                <span>${this.locales.contextMenu.delete}</span>
             </div>
         `;
 
@@ -751,15 +855,15 @@ const App = {
         menu.innerHTML = `
             <div class="context-menu-item" data-action="upload">
                 ${this.getIcon('upload')}
-                <span>上传文件</span>
+                <span>${this.locales.contextMenu.uploadFile}</span>
             </div>
             <div class="context-menu-item" data-action="newfolder">
                 ${this.getIcon('folder-plus')}
-                <span>新建文件夹</span>
+                <span>${this.locales.contextMenu.newFolder}</span>
             </div>
             <div class="context-menu-item" data-action="folderinfo">
                 ${this.getIcon('info')}
-                <span>详细信息</span>
+                <span>${this.locales.contextMenu.info}</span>
             </div>
         `;
 
@@ -822,11 +926,11 @@ const App = {
     },
 
     showNewFolderModal() {
-        const modal = this.createModal('新建文件夹', `
-            <input type="text" class="modal-input" id="folderNameInput" placeholder="请输入文件夹名称" value="新建文件夹">
+        const modal = this.createModal(this.locales.modals.newFolder.title, `
+            <input type="text" class="modal-input" id="folderNameInput" placeholder="${this.locales.modals.newFolder.placeholder}" value="${this.locales.modals.newFolder.defaultName}">
         `, [
-            { text: '取消', class: 'btn-column5', action: 'cancel' },
-            { text: '确定', class: 'btn-column2', action: 'confirm' }
+            { text: this.locales.modals.newFolder.cancel, class: 'btn-column5', action: 'cancel' },
+            { text: this.locales.modals.newFolder.confirm, class: 'btn-column2', action: 'confirm' }
         ]);
 
         modal.querySelector('[data-action="confirm"]').onclick = () => this.createNewFolder();
@@ -843,7 +947,7 @@ const App = {
         const name = document.getElementById('folderNameInput').value.trim();
 
         if (!name) {
-            this.showMessage('提示', '请输入文件夹名称');
+            this.showMessage(this.locales.modals.message.hint, this.locales.modals.message.pleaseEnterFolderName, 'info');
             return;
         }
 
@@ -859,19 +963,19 @@ const App = {
                 this.closeModal();
                 await this.loadFiles(this.currentFolderPath);
             } else {
-                this.showMessage('错误', data.message || '新建文件夹失败');
+                this.showMessage(this.locales.modals.message.error, data.message || this.locales.modals.message.newFolderFailed, 'error');
             }
         } catch (error) {
-            this.showMessage('错误', '新建文件夹失败');
+            this.showMessage(this.locales.modals.message.error, this.locales.modals.message.newFolderFailed, 'error');
         }
     },
 
     showRenameModal() {
-        const modal = this.createModal('重命名', `
-            <input type="text" class="modal-input" id="newNameInput" placeholder="请输入新名称" value="${this.selectedItem.name}">
+        const modal = this.createModal(this.locales.modals.rename.title, `
+            <input type="text" class="modal-input" id="newNameInput" placeholder="${this.locales.modals.rename.placeholder}" value="${this.selectedItem.name}">
         `, [
-            { text: '取消', class: 'btn-column5', action: 'cancel' },
-            { text: '确定', class: 'btn-column2', action: 'confirm' }
+            { text: this.locales.modals.rename.cancel, class: 'btn-column5', action: 'cancel' },
+            { text: this.locales.modals.rename.confirm, class: 'btn-column2', action: 'confirm' }
         ]);
 
         modal.querySelector('[data-action="confirm"]').onclick = () => this.confirmRename();
@@ -888,7 +992,7 @@ const App = {
         const newName = document.getElementById('newNameInput').value.trim();
 
         if (!newName) {
-            this.showMessage('提示', '请输入新名称');
+            this.showMessage(this.locales.modals.message.hint, this.locales.modals.rename.pleaseEnterNewName, 'info');
             return;
         }
 
@@ -904,10 +1008,10 @@ const App = {
                 this.closeModal();
                 await this.loadFiles(this.currentFolderPath);
             } else {
-                this.showMessage('错误', data.message || '重命名失败');
+                this.showMessage(this.locales.modals.message.error, data.message || this.locales.modals.rename.renameFailed, 'error');
             }
         } catch (error) {
-            this.showMessage('错误', '重命名失败');
+            this.showMessage(this.locales.modals.message.error, this.locales.modals.rename.renameFailed, 'error');
         }
     },
 
@@ -923,7 +1027,7 @@ const App = {
                 const extension = nameParts.length > 1 ? nameParts.pop() : '';
                 const baseName = nameParts.join('.');
 
-                let fileType = info.isDirectory ? '文件夹' : '文件';
+                let fileType = info.isDirectory ? this.locales.fileTypes.folder : this.locales.fileTypes.file;
                 let fileTypeDetail = '';
                 if (!info.isDirectory && extension) {
                     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'];
@@ -932,24 +1036,24 @@ const App = {
                     const docExtensions = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'txt'];
 
                     if (imageExtensions.includes(extension.toLowerCase())) {
-                        fileType = '图片';
+                        fileType = this.locales.fileTypes.image;
                     } else if (videoExtensions.includes(extension.toLowerCase())) {
-                        fileType = '视频';
+                        fileType = this.locales.fileTypes.video;
                     } else if (audioExtensions.includes(extension.toLowerCase())) {
-                        fileType = '音频';
+                        fileType = this.locales.fileTypes.audio;
                     } else if (docExtensions.includes(extension.toLowerCase())) {
-                        fileType = '文档';
+                        fileType = this.locales.fileTypes.document;
                     }
                     fileTypeDetail = ` (.${extension})`;
                 }
 
-                const filesRoot = 'D:\\Web_yun\\files';
+                const filesRoot = this.filesRoot;
                 let location = info.path.replace(filesRoot, '').replace(/\\/g, '/');
                 if (!location || location === '/') {
-                    location = '根目录';
+                    location = this.locales.toolbar.rootDir;
                 } else {
                     if (!location.startsWith('/')) location = '/' + location;
-                    location = '根目录' + location;
+                    location = this.locales.toolbar.rootDir + location;
                 }
 
                 const blockSize = 512;
@@ -957,7 +1061,7 @@ const App = {
                 const allocatedSize = blocks * blockSize;
 
                 const formatSizeWithBytes = (size) => {
-                    return `${this.formatFileSize(size)} (${size.toLocaleString()} 字节)`;
+                    return `${this.formatFileSize(size)} (${size.toLocaleString()} ${this.locales.fileTypes.bytes})`;
                 };
 
                 const formatDateTime = (dateStr) => {
@@ -968,55 +1072,55 @@ const App = {
                     const hours = String(date.getHours()).padStart(2, '0');
                     const minutes = String(date.getMinutes()).padStart(2, '0');
                     const seconds = String(date.getSeconds()).padStart(2, '0');
-                    return `${year}年${month}月${day}日，${hours}:${minutes}:${seconds}`;
+                    return `${year}${this.locales.dateFormat.year}${month}${this.locales.dateFormat.month}${day}${this.locales.dateFormat.day}${this.locales.dateFormat.separator}${hours}:${minutes}:${seconds}`;
                 };
 
-                const modal = this.createModal('文件信息', `
+                const modal = this.createModal(this.locales.modals.info.fileInfo, `
                     <div class="file-detail">
                         <div class="detail-item">
-                            <span class="detail-label">文件名</span>
+                            <span class="detail-label">${this.locales.modals.info.fileName}</span>
                             <span class="detail-value">${info.isDirectory ? info.name : baseName}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">文件类型</span>
+                            <span class="detail-label">${this.locales.modals.info.fileType}</span>
                             <span class="detail-value">${fileType}${fileTypeDetail}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">位置</span>
+                            <span class="detail-label">${this.locales.modals.info.location}</span>
                             <span class="detail-value">${location}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">大小</span>
+                            <span class="detail-label">${this.locales.modals.info.size}</span>
                             <span class="detail-value">${info.isDirectory ? '-' : formatSizeWithBytes(info.size)}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">占用空间</span>
+                            <span class="detail-label">${this.locales.modals.info.allocatedSize}</span>
                             <span class="detail-value">${info.isDirectory ? '-' : formatSizeWithBytes(allocatedSize)}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">创建时间</span>
+                            <span class="detail-label">${this.locales.modals.info.created}</span>
                             <span class="detail-value">${formatDateTime(info.created)}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">修改时间</span>
+                            <span class="detail-label">${this.locales.modals.info.modified}</span>
                             <span class="detail-value">${formatDateTime(info.modified)}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">访问时间</span>
+                            <span class="detail-label">${this.locales.modals.info.accessed}</span>
                             <span class="detail-value">${formatDateTime(info.accessed)}</span>
                         </div>
                     </div>
                 `, [
-                    { text: '关闭', class: 'btn-column5', action: 'close' }
+                    { text: this.locales.modals.info.close, class: 'btn-column5', action: 'close' }
                 ]);
 
                 modal.querySelector('[data-action="close"]').onclick = () => this.closeModal();
                 document.body.appendChild(modal);
             } else {
-                this.showMessage('错误', data.message || '获取文件信息失败');
+                this.showMessage(this.locales.modals.message.error, data.message || this.locales.modals.info.getInfoFailed, 'error');
             }
         } catch (error) {
-            this.showMessage('错误', '获取文件信息失败');
+            this.showMessage(this.locales.modals.message.error, this.locales.modals.info.getInfoFailed, 'error');
         }
     },
 
@@ -1050,14 +1154,14 @@ const App = {
         }, 3000);
     },
 
-    showMessage(title, message) {
-        this.showToast(message, title === '错误' ? 'error' : 'info');
+    showMessage(title, message, type = 'info') {
+        this.showToast(message, type);
     },
 
     async showFolderInfo() {
-        const filesRoot = 'D:\\Web_yun\\files';
+        const filesRoot = this.filesRoot;
         if (!this.currentFolderPath || this.currentFolderPath === filesRoot) {
-            this.showMessage('提示', '根目录不支持查看详细信息');
+            this.showMessage(this.locales.modals.message.hint, this.locales.modals.message.rootDirNoInfo, 'info');
             return;
         }
 
@@ -1068,13 +1172,13 @@ const App = {
             if (data.success) {
                 const info = data.info;
 
-                const filesRoot = 'D:\\Web_yun\\files';
+                const filesRoot = this.filesRoot;
                 let location = info.path.replace(filesRoot, '').replace(/\\/g, '/');
                 if (!location || location === '/') {
-                    location = '根目录';
+                    location = this.locales.toolbar.rootDir;
                 } else {
                     if (!location.startsWith('/')) location = '/' + location;
-                    location = '根目录' + location;
+                    location = this.locales.toolbar.rootDir + location;
                 }
 
                 const formatDateTime = (dateStr) => {
@@ -1085,57 +1189,57 @@ const App = {
                     const hours = String(date.getHours()).padStart(2, '0');
                     const minutes = String(date.getMinutes()).padStart(2, '0');
                     const seconds = String(date.getSeconds()).padStart(2, '0');
-                    return `${year}年${month}月${day}日，${hours}:${minutes}:${seconds}`;
+                    return `${year}${this.locales.dateFormat.year}${month}${this.locales.dateFormat.month}${day}${this.locales.dateFormat.day}${this.locales.dateFormat.separator}${hours}:${minutes}:${seconds}`;
                 };
 
-                const modal = this.createModal('文件夹信息', `
+                const modal = this.createModal(this.locales.modals.info.folderInfo, `
                     <div class="file-detail">
                         <div class="detail-item">
-                            <span class="detail-label">文件夹名称</span>
+                            <span class="detail-label">${this.locales.modals.info.folderName}</span>
                             <span class="detail-value">${info.name}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">位置</span>
+                            <span class="detail-label">${this.locales.modals.info.location}</span>
                             <span class="detail-value">${location}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">创建时间</span>
+                            <span class="detail-label">${this.locales.modals.info.created}</span>
                             <span class="detail-value">${formatDateTime(info.created)}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">修改时间</span>
+                            <span class="detail-label">${this.locales.modals.info.modified}</span>
                             <span class="detail-value">${formatDateTime(info.modified)}</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">访问时间</span>
+                            <span class="detail-label">${this.locales.modals.info.accessed}</span>
                             <span class="detail-value">${formatDateTime(info.accessed)}</span>
                         </div>
                     </div>
                 `, [
-                    { text: '关闭', class: 'btn-column5', action: 'close' }
+                    { text: this.locales.modals.info.close, class: 'btn-column5', action: 'close' }
                 ]);
 
                 modal.querySelector('[data-action="close"]').onclick = () => this.closeModal();
                 document.body.appendChild(modal);
             } else {
-                this.showMessage('错误', data.message || '获取文件夹信息失败');
+                this.showMessage(this.locales.modals.message.error, data.message || this.locales.modals.info.getFolderInfoFailed, 'error');
             }
         } catch (error) {
-            this.showMessage('错误', '获取文件夹信息失败');
+            this.showMessage(this.locales.modals.message.error, this.locales.modals.info.getFolderInfoFailed, 'error');
         }
     },
 
     async deleteItem(path) {
         const confirmMsg = this.selectedItem.isDirectory
-            ? `确认删除文件夹 "<strong>${this.selectedItem.name}</strong>" 吗？`
-            : `确认删除文件 "<strong>${this.selectedItem.name}</strong>" 吗？`;
+            ? this.locales.modals.delete.confirmDeleteFolder.replace('{name}', this.selectedItem.name)
+            : this.locales.modals.delete.confirmDeleteFile.replace('{name}', this.selectedItem.name);
 
-        const modal = this.createModal('确认删除', `
+        const modal = this.createModal(this.locales.modals.delete.title, `
             <p style="color: #E74C3C; margin-bottom: 10px;">${confirmMsg}</p>
-            <p style="font-size: 14px; color: #666;">此操作无法撤销。</p>
+            <p style="font-size: 14px; color: #666;">${this.locales.modals.delete.cannotUndo}</p>
         `, [
-            { text: '取消', class: 'btn-column5', action: 'cancel' },
-            { text: '删除', class: 'btn-column4', action: 'confirm' }
+            { text: this.locales.modals.delete.cancel, class: 'btn-column5', action: 'cancel' },
+            { text: this.locales.modals.delete.confirm, class: 'btn-column4', action: 'confirm' }
         ]);
 
         modal.querySelector('[data-action="confirm"]').onclick = async () => {
@@ -1151,10 +1255,10 @@ const App = {
                     await this.loadFiles(this.currentFolderPath);
                     this.closeModal();
                 } else {
-                    this.showMessage('错误', data.message || '删除失败');
+                    this.showMessage(this.locales.modals.message.error, data.message || this.locales.modals.delete.deleteFailed, 'error');
                 }
             } catch (error) {
-                this.showMessage('错误', '网络错误');
+                this.showMessage(this.locales.modals.message.error, this.locales.modals.delete.networkError, 'error');
             }
         };
         modal.querySelector('[data-action="cancel"]').onclick = () => this.closeModal();
@@ -1182,10 +1286,10 @@ const App = {
             if (data.success) {
                 await this.loadFiles(this.currentFolderPath);
             } else {
-                this.showMessage('错误', data.message || '上传文件失败');
+                this.showMessage(this.locales.modals.message.error, data.message || this.locales.modals.message.uploadFailed, 'error');
             }
         } catch (error) {
-            this.showMessage('错误', '上传文件失败');
+            this.showMessage(this.locales.modals.message.error, this.locales.modals.message.uploadFailed, 'error');
         }
 
         e.target.value = '';
@@ -1273,22 +1377,22 @@ const App = {
 
         const content = `
             <div style="margin-bottom: 20px;">
-                <p style="font-size: 14px; color: #666; margin-bottom: 10px;">上传自定义头像：</p>
+                <p style="font-size: 14px; color: #666; margin-bottom: 10px;">${this.locales.modals.changeAvatar.uploadCustomAvatar}</p>
                 <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
                 <label for="avatar-upload" class="btn btn-column2" style="cursor: pointer; display: inline-block;">
-                    选择图片
+                    ${this.locales.modals.changeAvatar.chooseImage}
                 </label>
             </div>
             <div style="margin-top: 20px;">
-                <p style="font-size: 14px; color: #666; margin-bottom: 10px;">或选择头像颜色：</p>
+                <p style="font-size: 14px; color: #666; margin-bottom: 10px;">${this.locales.modals.changeAvatar.orChooseColor}</p>
                 <div style="display: grid; grid-template-columns: repeat(4, 50px); gap: 15px; justify-content: center;">
                     ${colorGrid}
                 </div>
             </div>
         `;
 
-        const modal = this.createModal('修改头像', content, [
-            { text: '取消', class: 'btn-column5', action: 'cancel' }
+        const modal = this.createModal(this.locales.modals.changeAvatar.title, content, [
+            { text: this.locales.modals.changeAvatar.cancel, class: 'btn-column5', action: 'cancel' }
         ]);
 
         document.body.appendChild(modal);
@@ -1317,29 +1421,68 @@ const App = {
 
             // 添加图片上传事件
             const uploadInput = document.getElementById('avatar-upload');
-            uploadInput.addEventListener('change', (e) => {
+            uploadInput.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 if (file) {
+                    // 检查 userId 是否存在
+                    let userId = this.userId || localStorage.getItem('userId');
+                    if (!userId) {
+                        this.showToast('用户信息丢失，请重新登录', 'error');
+                        return;
+                    }
+                    
                     const reader = new FileReader();
-                    reader.onload = (event) => {
+                    reader.onload = async (event) => {
                         const imageData = event.target.result;
-                        localStorage.setItem('avatarImage', imageData);
-                        localStorage.removeItem('avatarColor');
-                        avatarDisplay.style.background = 'transparent';
-                        avatarDisplay.style.backgroundImage = 'url(' + imageData + ')';
-                        avatarDisplay.style.backgroundSize = 'cover';
-                        avatarDisplay.style.backgroundPosition = 'center';
-                        avatarDisplay.textContent = '';
-                        // 同时更新顶部栏的头像
-                        const topbarAvatar = document.querySelector('.topbar .user-avatar');
-                        if (topbarAvatar) {
-                            topbarAvatar.style.background = 'transparent';
-                            topbarAvatar.style.backgroundImage = 'url(' + imageData + ')';
-                            topbarAvatar.style.backgroundSize = 'cover';
-                            topbarAvatar.style.backgroundPosition = 'center';
-                            topbarAvatar.textContent = '';
+                        
+                        // 上传到服务器
+                        try {
+                            console.log('开始上传头像, userId:', userId);
+                            const response = await fetch('/api/avatar/upload', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    userId: userId,
+                                    avatarData: imageData
+                                })
+                            });
+                            
+                            console.log('上传响应状态:', response.status);
+                            const result = await response.json();
+                            console.log('上传结果:', result);
+                            
+                            if (result.success) {
+                                // 保存头像URL到localStorage
+                                localStorage.setItem('avatarImage', result.avatar);
+                                localStorage.removeItem('avatarColor');
+                                
+                                // 更新显示
+                                const avatarUrl = result.avatar;
+                                avatarDisplay.style.background = 'transparent';
+                                avatarDisplay.style.backgroundImage = `url(${avatarUrl}?t=${Date.now()})`;
+                                avatarDisplay.style.backgroundSize = 'cover';
+                                avatarDisplay.style.backgroundPosition = 'center';
+                                avatarDisplay.textContent = '';
+                                
+                                // 同时更新顶部栏的头像
+                                const topbarAvatar = document.querySelector('.topbar .user-avatar');
+                                if (topbarAvatar) {
+                                    topbarAvatar.style.background = 'transparent';
+                                    topbarAvatar.style.backgroundImage = `url(${avatarUrl}?t=${Date.now()})`;
+                                    topbarAvatar.style.backgroundSize = 'cover';
+                                    topbarAvatar.style.backgroundPosition = 'center';
+                                    topbarAvatar.textContent = '';
+                                }
+                                
+                                this.showToast('头像上传成功', 'success');
+                                this.closeModal();
+                            } else {
+                                this.showToast(result.message || '头像上传失败', 'error');
+                            }
+                        } catch (error) {
+                            console.error('头像上传失败:', error);
+                            this.showToast('头像上传失败: ' + error.message, 'error');
                         }
-                        this.closeModal();
                     };
                     reader.readAsDataURL(file);
                 }
@@ -1387,7 +1530,7 @@ const App = {
 
         const title1 = document.createElement('h3');
         title1.className = 'settings-title';
-        title1.textContent = '用户信息';
+        title1.textContent = this.locales.settings.userInfoTitle;
 
         // 头像显示
         const avatarContainer = document.createElement('div');
@@ -1401,7 +1544,11 @@ const App = {
         const savedAvatarImage = localStorage.getItem('avatarImage');
         if (savedAvatarImage) {
             avatarDisplay.style.background = 'transparent';
-            avatarDisplay.style.backgroundImage = 'url(' + savedAvatarImage + ')';
+            // 如果是服务器头像URL，添加时间戳避免缓存
+            const imageUrl = savedAvatarImage.startsWith('/assets/') 
+                ? `${savedAvatarImage}?t=${Date.now()}` 
+                : savedAvatarImage;
+            avatarDisplay.style.backgroundImage = 'url(' + imageUrl + ')';
             avatarDisplay.style.backgroundSize = 'cover';
             avatarDisplay.style.backgroundPosition = 'center';
             avatarDisplay.textContent = '';
@@ -1415,12 +1562,12 @@ const App = {
         }
 
         const usernameDisplay = document.createElement('div');
-        usernameDisplay.style.cssText = 'flex: 1;';
+        usernameDisplay.className = 'user-info-display';
         const usernameLabel = document.createElement('div');
-        usernameLabel.style.cssText = 'font-size: 14px; color: #666; margin-bottom: 5px;';
-        usernameLabel.textContent = '用户名';
+        usernameLabel.className = 'user-info-label';
+        usernameLabel.textContent = this.locales.settings.usernameLabel;
         const usernameValue = document.createElement('div');
-        usernameValue.style.cssText = 'font-size: 18px; font-weight: 500; color: #333;';
+        usernameValue.className = 'user-info-value';
         usernameValue.textContent = this.username;
         usernameDisplay.appendChild(usernameLabel);
         usernameDisplay.appendChild(usernameValue);
@@ -1431,7 +1578,7 @@ const App = {
         // 修改头像按钮
         const changeAvatarBtn = document.createElement('button');
         changeAvatarBtn.className = 'btn btn-column2';
-        changeAvatarBtn.textContent = '修改头像';
+        changeAvatarBtn.textContent = this.locales.settings.changeAvatarBtn;
         changeAvatarBtn.style.cssText = 'margin-left: auto;';
         changeAvatarBtn.onclick = () => this.showAvatarPickerModal(avatarDisplay);
 
@@ -1439,10 +1586,43 @@ const App = {
         section1.appendChild(avatarContainer);
         section1.appendChild(changeAvatarBtn);
 
-        const section2 = this.createSettingsSection('版本信息', [
-            { label: '版本号', value: '1.0.0' },
-            { label: '文件存储路径', value: './files' }
-        ]);
+        // 版本信息section - 带版本检查
+        const section2 = document.createElement('div');
+        section2.className = 'settings-section';
+        const section2Title = document.createElement('h3');
+        section2Title.className = 'settings-title';
+        section2Title.textContent = this.locales.settings.versionInfoTitle;
+        section2.appendChild(section2Title);
+
+        // 创建版本信息项
+        const versionItem = document.createElement('div');
+        versionItem.className = 'settings-item';
+        const versionLabel = document.createElement('span');
+        versionLabel.className = 'settings-item-label';
+        versionLabel.textContent = this.locales.settings.versionLabel;
+        versionItem.appendChild(versionLabel);
+
+        const versionValue = document.createElement('span');
+        versionValue.className = 'settings-item-value';
+        versionValue.textContent = this.locales.app.version;
+        versionItem.appendChild(versionValue);
+        section2.appendChild(versionItem);
+
+        // 存储路径项
+        const storagePathItem = document.createElement('div');
+        storagePathItem.className = 'settings-item';
+        const storagePathLabel = document.createElement('span');
+        storagePathLabel.className = 'settings-item-label';
+        storagePathLabel.textContent = this.locales.settings.storagePathLabel;
+        storagePathItem.appendChild(storagePathLabel);
+        const storagePathValue = document.createElement('span');
+        storagePathValue.className = 'settings-item-value';
+        storagePathValue.textContent = this.locales.app.storagePath;
+        storagePathItem.appendChild(storagePathValue);
+        section2.appendChild(storagePathItem);
+
+        // 检查版本更新
+        this.checkVersionUpdate(versionValue);
 
         // 深色模式设置
         const darkModeSection = document.createElement('div');
@@ -1450,13 +1630,13 @@ const App = {
 
         const darkModeTitle = document.createElement('h3');
         darkModeTitle.className = 'settings-title';
-        darkModeTitle.textContent = '深色模式';
+        darkModeTitle.textContent = this.locales.settings.darkModeTitle;
 
         const darkModeSwitch = document.createElement('div');
         darkModeSwitch.style.cssText = 'display: flex; align-items: center; gap: 10px; margin-top: 10px;';
         
         const switchLabel = document.createElement('span');
-        switchLabel.textContent = '启用深色模式';
+        switchLabel.textContent = this.locales.settings.switchLabel;
         
         const switchInput = document.createElement('input');
         switchInput.type = 'checkbox';
@@ -1473,11 +1653,11 @@ const App = {
 
         const title3 = document.createElement('h3');
         title3.className = 'settings-title';
-        title3.textContent = '设置';
+        title3.textContent = this.locales.settings.settingsTitle;
 
         const logoutBtn = document.createElement('button');
         logoutBtn.className = 'btn btn-column4';
-        logoutBtn.textContent = '退出登录';
+        logoutBtn.textContent = this.locales.settings.logoutBtn;
         logoutBtn.style.marginTop = '15px';
         logoutBtn.onclick = () => this.logout();
 
@@ -1517,6 +1697,79 @@ const App = {
         container.appendChild(mainContainer);
     },
 
+    async checkVersionUpdate(versionElement) {
+        console.log('开始检查版本更新...');
+        try {
+            // 获取本地版本号
+            const localResponse = await fetch('/api/version');
+            if (!localResponse.ok) {
+                throw new Error('获取本地版本失败，状态码: ' + localResponse.status);
+            }
+            const localData = await localResponse.json();
+            const currentVersion = localData.version;
+            console.log('本地版本号:', currentVersion);
+            
+            // 更新显示的版本号
+            versionElement.textContent = currentVersion;
+            
+            // 获取远程版本号（通过服务器代理避免CORS）
+            console.log('正在获取远程版本号...');
+            const remoteResponse = await fetch('/api/remote-version');
+            if (!remoteResponse.ok) {
+                throw new Error('获取远程版本失败，状态码: ' + remoteResponse.status);
+            }
+            const remoteData = await remoteResponse.json();
+            const latestVersion = remoteData.version;
+            console.log('远程版本号:', latestVersion);
+            
+            if (this.isVersionNewer(latestVersion, currentVersion)) {
+                console.log('发现新版本，创建更新提示...');
+                // 创建可点击的版本号链接
+                const link = document.createElement('a');
+                link.href = 'https://github.com/Lxh-2014/MingXing-WebYun';
+                link.target = '_blank';
+                link.style.color = '#FFC90E';
+                link.style.cursor = 'pointer';
+                link.style.textDecoration = 'underline';
+                link.title = '可更新';
+                link.textContent = `⚠ ${currentVersion}`;
+                // 添加动画样式
+                link.style.opacity = '0';
+                link.style.transform = 'scale(0.8)';
+                link.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                
+                versionElement.innerHTML = '';
+                versionElement.appendChild(link);
+                
+                // 触发动画
+                setTimeout(() => {
+                    link.style.opacity = '1';
+                    link.style.transform = 'scale(1)';
+                }, 10);
+                
+                console.log('更新提示已创建');
+            } else {
+                console.log('当前版本已是最新');
+            }
+        } catch (error) {
+            console.error('检查版本更新失败:', error.message);
+        }
+    },
+
+    isVersionNewer(newVersion, oldVersion) {
+        const newParts = newVersion.split('.').map(Number);
+        const oldParts = oldVersion.split('.').map(Number);
+        
+        for (let i = 0; i < Math.max(newParts.length, oldParts.length); i++) {
+            const newPart = newParts[i] || 0;
+            const oldPart = oldParts[i] || 0;
+            
+            if (newPart > oldPart) return true;
+            if (newPart < oldPart) return false;
+        }
+        return false;
+    },
+
     createSettingsSection(title, items) {
         const section = document.createElement('div');
         section.className = 'settings-section';
@@ -1550,16 +1803,20 @@ const App = {
     },
 
     logout() {
-        const modal = this.createModal('退出登录', `
-            <p style="margin-bottom: 10px;">确定要退出登录吗？</p>
+        const modal = this.createModal(this.locales.modals.logout.title, `
+            <p style="margin-bottom: 10px;">${this.locales.modals.confirm.logout}</p>
         `, [
-            { text: '取消', class: 'btn-column5', action: 'cancel' },
-            { text: '退出', class: 'btn-column4', action: 'confirm' }
+            { text: this.locales.modals.logout.cancel, class: 'btn-column5', action: 'cancel' },
+            { text: this.locales.modals.logout.confirm, class: 'btn-column4', action: 'confirm' }
         ]);
 
         modal.querySelector('[data-action="confirm"]').onclick = () => {
             localStorage.removeItem('username');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('avatarImage');
+            localStorage.removeItem('avatarColor');
             this.username = null;
+            this.userId = null;
             this.currentFolderPath = null;
             localStorage.removeItem('currentFolderPath');
             history.pushState({}, '', '/login');

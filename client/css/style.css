@@ -1,22 +1,177 @@
-/**
+/*
  * CSS变量定义
- */
-:root {
-    --primary-color: #4A90E2;
-    --primary-hover: #3A7BC8;
-    --primary-active: #2D6BB2;
-    --bg-color: #F5F7FA;
-    --white: #FFFFFF;
-    --border-color: #E1E5EB;
-    --text-primary: #333333;
-    --text-secondary: #666666;
-    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
+ * 明亮模式 (light_) 和 黑暗模式 (dark_)
+ * 按钮颜色为通用变量，不随主题变化
+*/
 
-/**
- * 基础样式重置
- */
+/* ==================== 明亮模式 ==================== */
+:root {
+    /* --- 主色系 --- */
+    --light_primary_color: #4A90E2;                          /* 主色：蓝色，用于重点强调和交互 */
+    --light_primary_hover: #3A7BC8;                          /* 主色悬停：鼠标悬停时的主色 */
+    --light_primary_active: #2D6BB2;                         /* 主色激活：按钮按下时的主色 */
+
+    /* --- 背景色 --- */
+    --light_bg_color: #F5F7FA;                               /* 页面背景色：整体页面背景 */
+    --light_white: #FFFFFF;                                  /* 白色：卡片、弹窗背景 */
+    --light_bg_secondary: #EBF5FF;                           /* 文件选中背景：选中文件时的高亮背景 */
+
+    /* --- 边框色 --- */
+    --light_border_color: #E1E5EB;                           /* 边框色：输入框、卡片边框 */
+
+    /* --- 文字颜色 --- */
+    --light_text_primary: #333333;                           /* 主要文字：标题、重要信息 */
+    --light_text_secondary: #666666;                         /* 次要文字：说明文字、次要信息 */
+    --light_text_title: #222222;                             /* 标题文字：弹窗标题等 */
+
+    /* --- 阴影 --- */
+    --light_shadow: 0 2px 8px rgba(0, 0, 0, 0.1);            /* 默认阴影：卡片默认阴影 */
+    --light_shadow_hover: 0 4px 12px rgba(0, 0, 0, 0.15);    /* 悬停阴影：卡片悬停时阴影 */
+    --light_shadow_modal: 0 10px 35px rgba(0, 0, 0, 0.12);   /* 弹窗阴影：弹窗组件阴影 */
+    --light_shadow_toast: 0 4px 12px rgba(0, 0, 0, 0.15);    /* Toast阴影：提示组件阴影 */
+
+    /* --- 透明悬浮背景 --- */
+    --light_nav_hover_bg: rgba(74, 144, 226, 0.1);           /* 导航项悬停背景：蓝色半透明 */
+    --light_nav_active_bg: rgba(74, 144, 226, 0.15);         /* 导航项激活背景：蓝色半透明 */
+    --light_nav_btn_hover_bg: rgba(0, 0, 0, 0.05);           /* 导航按钮悬停背景：黑色半透明 */
+    --light_nav_btn_active_bg: rgba(0, 0, 0, 0.1);           /* 导航按钮激活背景：黑色半透明 */
+    --light_search_box_bg: rgba(0, 0, 0, 0.03);              /* 搜索框背景色 */
+    --light_modal_overlay_bg: rgba(0, 0, 0, 0.4);            /* 弹窗遮罩背景：黑色半透明 */
+    --light_modal_overlay_blur: 8px;                           /* 弹窗遮罩模糊程度 */
+
+    /* --- Toast提示颜色 --- */
+    --light_toast_bg: #FFFFFF;                               /* Toast背景色：白色 */
+    --light_toast_text: #333333;                             /* Toast默认文字颜色 */
+    --light_toast_border: #E1E5EB;                           /* Toast默认边框颜色 */
+    --light_toast_success_border: #27AE60;                   /* Toast成功边框颜色：绿色 */
+    --light_toast_success_text: #27AE60;                     /* Toast成功文字颜色：绿色 */
+    --light_toast_error_border: #E74C3C;                     /* Toast错误边框颜色：红色 */
+    --light_toast_error_text: #E74C3C;                       /* Toast错误文字颜色：红色 */
+    --light_toast_warning_border: #F1C40F;                   /* Toast警告边框颜色：黄色 */
+    --light_toast_warning_text: #F1C40F;                     /* Toast警告文字颜色：黄色 */
+    --light_toast_info_border: #3498DB;                      /* Toast信息边框颜色：蓝色 */
+    --light_toast_info_text: #3498DB;                        /* Toast信息文字颜色：蓝色 */
+
+    /* --- 登录页 --- */
+    --light_login_bg: #d8eaff;                               /* 登录页背景色：淡蓝色 */
+
+    /* --- 错误提示 --- */
+    --light_error_color: #E74C3C;                            /* 错误提示颜色：红色 */
+
+    /* --- 危险操作 --- */
+    --light_danger_color: #EE0000;                           /* 危险操作文字颜色：红色 */
+    --light_danger_icon: #BC0000;                            /* 危险操作图标颜色：深红色 */
+
+    /* --- 输入框 --- */
+    --light_input_bg: #FFFFFF;                               /* 输入框背景色：白色 */
+    --light_input_placeholder: #999999;                      /* 输入框占位符颜色：灰色 */
+
+    /* ==================== 黑暗模式 ==================== */
+    --dark_bg_primary: #17181A;                              /* 黑暗模式主背景色 */
+    --dark_bg_secondary: #1a1b1f;                            /* 黑暗模式次要背景色：卡片、弹窗 */
+    --dark_bg_tertiary: #1d1d1d;                             /* 黑暗模式第三背景色：输入框 */
+    --dark_text_primary: #eaeaea;                            /* 黑暗模式主要文字颜色 */
+    --dark_text_secondary: #b8b8b8;                          /* 黑暗模式次要文字颜色 */
+    --dark_border_color: #242424;                            /* 黑暗模式边框颜色 */
+    --dark_shadow_color: #000000;                            /* 黑暗模式阴影颜色 */
+    --dark_white: #1a1b1f;                                   /* 黑暗模式白色（用于需要反转的地方） */
+
+    /* --- 黑暗模式Toast --- */
+    --dark_toast_bg: #1a1b1f;                                /* 黑暗模式Toast背景色 */
+    --dark_toast_border: #242424;                            /* 黑暗模式Toast默认边框 */
+    --dark_toast_text: #eaeaea;                              /* 黑暗模式Toast默认文字 */
+    --dark_toast_success_border: #51cf66;                    /* 黑暗模式Toast成功边框：亮绿色 */
+    --dark_toast_success_text: #51cf66;                      /* 黑暗模式Toast成功文字：亮绿色 */
+    --dark_toast_error_border: #ff6b6b;                      /* 黑暗模式Toast错误边框：亮红色 */
+    --dark_toast_error_text: #ff6b6b;                        /* 黑暗模式Toast错误文字：亮红色 */
+    --dark_toast_warning_border: #ffd43b;                    /* 黑暗模式Toast警告边框：亮黄色 */
+    --dark_toast_warning_text: #ffd43b;                      /* 黑暗模式Toast警告文字：亮黄色 */
+    --dark_toast_info_border: #339af0;                       /* 黑暗模式Toast信息边框：亮蓝色 */
+    --dark_toast_info_text: #339af0;                         /* 黑暗模式Toast信息文字：亮蓝色 */
+    --dark_toast_shadow: 0 4px 12px rgba(0, 0, 0, 0.3);      /* 黑暗模式Toast阴影 */
+
+    /* --- 黑暗模式模态框 --- */
+    --dark_modal_overlay_bg: rgba(0, 0, 0, 0.7);             /* 黑暗模式弹窗遮罩背景 */
+
+    /* --- 黑暗模式输入框 --- */
+    --dark_input_bg: #1d1d1d;                                /* 黑暗模式输入框背景 */
+    --dark_input_placeholder: #888888;                       /* 黑暗模式输入框占位符 */
+
+    /* ==================== 定义 ==================== */
+    --primary-color: var(--light_primary_color);               /* 主色 */
+    --primary-hover: var(--light_primary_hover);               /* 主色悬停 */
+    --primary-active: var(--light_primary_active);             /* 主色激活 */
+    --bg-color: var(--light_bg_color);                         /* 页面背景色 */
+    --white: var(--light_white);                               /* 白色背景 */
+    --bg-secondary: var(--light_bg_secondary);                 /* 次要背景色 */
+    --border-color: var(--light_border_color);                 /* 边框色 */
+    --text-primary: var(--light_text_primary);                 /* 主要文字 */
+    --text-secondary: var(--light_text_secondary);             /* 次要文字 */
+    --text-title: var(--light_text_title);                     /* 标题文字 */
+    --shadow: var(--light_shadow);                             /* 默认阴影 */
+    --shadow-hover: var(--light_shadow_hover);                 /* 悬停阴影 */
+    --shadow-modal: var(--light_shadow_modal);                 /* 弹窗阴影 */
+    --shadow-toast: var(--light_shadow_toast);                 /* Toast阴影 */
+    --nav-hover-bg: var(--light_nav_hover_bg);                 /* 导航悬停背景 */
+    --nav-active-bg: var(--light_nav_active_bg);               /* 导航激活背景 */
+    --nav-btn-hover-bg: var(--light_nav_btn_hover_bg);         /* 导航按钮悬停背景 */
+    --nav-btn-active-bg: var(--light_nav_btn_active_bg);       /* 导航按钮激活背景 */
+    --search-box-bg: var(--light_search_box_bg);               /* 搜索框背景 */
+    --modal-overlay-bg: var(--light_modal_overlay_bg);         /* 弹窗遮罩背景 */
+    --modal-overlay-blur: var(--light_modal_overlay_blur);     /* 弹窗遮罩模糊 */
+    --toast-bg: var(--light_toast_bg);                         /* Toast背景 */
+    --toast-text: var(--light_toast_text);                     /* Toast文字 */
+    --toast-border: var(--light_toast_border);                 /* Toast边框 */
+    --toast-success-border: var(--light_toast_success_border); /* Toast成功边框 */
+    --toast-success-text: var(--light_toast_success_text);     /* Toast成功文字 */
+    --toast-error-border: var(--light_toast_error_border);     /* Toast错误边框 */
+    --toast-error-text: var(--light_toast_error_text);         /* Toast错误文字 */
+    --toast-warning-border: var(--light_toast_warning_border); /* Toast警告边框 */
+    --toast-warning-text: var(--light_toast_warning_text);     /* Toast警告文字 */
+    --toast-info-border: var(--light_toast_info_border);       /* Toast信息边框 */
+    --toast-info-text: var(--light_toast_info_text);           /* Toast信息文字 */
+    --login-bg: var(--light_login_bg);                         /* 登录页背景 */
+    --error-color: var(--light_error_color);                   /* 错误提示色 */
+    --danger-color: var(--light_danger_color);                 /* 危险操作色 */
+    --danger-icon: var(--light_danger_icon);                   /* 危险操作图标色 */
+    --input-bg: var(--light_input_bg);                         /* 输入框背景 */
+    --input-placeholder: var(--light_input_placeholder);       /* 输入框占位符 */
+
+    /* --- 按钮 --- */
+    
+    --btn_col1_bg: #FF7BAC;                                  /* 粉色按钮背景 */
+    --btn_col1_shadow: #C94A83;                              /* 粉色按钮阴影 */
+    --btn_col1_hover_bg: #FF6B9F;                            /* 粉色按钮悬停背景 */
+    --btn_col1_hover_shadow: #B83E77;                        /* 粉色按钮悬停阴影 */
+
+    --btn_col2_bg: #1CB0F6;                                  /* 蓝色按钮背景 */
+    --btn_col2_shadow: #1899D6;                              /* 蓝色按钮阴影 */
+    --btn_col2_hover_bg: #1FC2FF;                            /* 蓝色按钮悬停背景 */
+    --btn_col2_hover_shadow: #1AA8EB;                        /* 蓝色按钮悬停阴影 */
+
+    --btn_col3_bg: #50C878;                                  /* 绿色按钮背景 */
+    --btn_col3_shadow: #2E8B57;                              /* 绿色按钮阴影 */
+    --btn_col3_hover_bg: #3CB371;                            /* 绿色按钮悬停背景 */
+    --btn_col3_hover_shadow: #267A4A;                        /* 绿色按钮悬停阴影 */
+
+    --btn_col4_bg: #EE0000;                                  /* 红色按钮背景 */
+    --btn_col4_shadow: #BC0000;                              /* 红色按钮阴影 */
+    --btn_col4_hover_bg: #FF3F3F;                            /* 红色按钮悬停背景 */
+    --btn_col4_hover_shadow: #DE0000;                        /* 红色按钮悬停阴影 */
+
+    --btn_col5_bg: rgb(229, 229, 229);                       /* 灰色按钮背景 */
+    --btn_col5_text: rgb(60, 60, 60);                        /* 灰色按钮文字 */
+    --btn_col5_shadow: rgb(180, 180, 180);                   /* 灰色按钮阴影 */
+    --btn_col5_hover_bg: rgb(235, 235, 235);                 /* 灰色按钮悬停背景 */
+    --btn_col5_hover_shadow: rgb(200, 200, 200);             /* 灰色按钮悬停阴影 */
+
+    --toolbar_btn_bg: rgb(229, 229, 229);                    /* 工具栏按钮背景 */
+    --toolbar_btn_text: rgb(60, 60, 60);                     /* 工具栏按钮文字 */
+    --toolbar_btn_shadow: rgb(180, 180, 180);                /* 工具栏按钮阴影 */
+    --toolbar_btn_hover_bg: rgb(235, 235, 235);              /* 工具栏按钮悬停背景 */
+    --toolbar_btn_hover_shadow: rgb(200, 200, 200);          /* 工具栏按钮悬停阴影 */
+}
+/* 基础样式重置 */
 * {
     margin: 0;
     padding: 0;
@@ -33,9 +188,7 @@ body {
     min-height: 100vh;
 }
 
-/**
- * 多邻国风格按钮样式 - 基础按钮类
- */
+/* 多邻国风格按钮样式 - 基础按钮类 */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -57,93 +210,91 @@ body {
 
 /* 第一列：粉色按钮 */
 .btn-column1 {
-    background: #FF7BAC;
+    background: var(--btn_col1_bg);
     color: white;
-    box-shadow: 0 4px 0 #C94A83;
+    box-shadow: 0 4px 0 var(--btn_col1_shadow);
 }
 
 .btn-column1:hover {
-    background: #FF6B9F;
-    box-shadow: 0 4px 0 #B83E77;
+    background: var(--btn_col1_hover_bg);
+    box-shadow: 0 4px 0 var(--btn_col1_hover_shadow);
 }
 
 .btn-column1:active {
-    box-shadow: 0 0 0 #C94A83;
+    box-shadow: 0 0 0 var(--btn_col1_shadow);
 }
 
 /* 第二列：蓝色按钮 */
 .btn-column2 {
-    background: #1CB0F6;
+    background: var(--btn_col2_bg);
     color: white;
-    box-shadow: 0 4px 0 #1899D6;
+    box-shadow: 0 4px 0 var(--btn_col2_shadow);
 }
 
 .btn-column2:hover {
-    background: #1FC2FF;
-    box-shadow: 0 4px 0 #1AA8EB;
+    background: var(--btn_col2_hover_bg);
+    box-shadow: 0 4px 0 var(--btn_col2_hover_shadow);
 }
 
 .btn-column2:active {
-    box-shadow: 0 0 0 #2D6BB2;
+    box-shadow: 0 0 0 var(--primary-active);
 }
 
 /* 第三列：绿色按钮 */
 .btn-column3 {
-    background: #50C878;
+    background: var(--btn_col3_bg);
     color: white;
-    box-shadow: 0 4px 0 #2E8B57;
+    box-shadow: 0 4px 0 var(--btn_col3_shadow);
 }
 
 .btn-column3:hover {
-    background: #3CB371;
-    box-shadow: 0 4px 0 #267A4A;
+    background: var(--btn_col3_hover_bg);
+    box-shadow: 0 4px 0 var(--btn_col3_hover_shadow);
 }
 
 .btn-column3:active {
-    box-shadow: 0 0 0 #2E8B57;
+    box-shadow: 0 0 0 var(--btn_col3_shadow);
 }
 
 /* 第四列：红色按钮 */
 .btn-column4 {
-    background: #EE0000;
+    background: var(--btn_col4_bg);
     color: white;
-    box-shadow: 0 4px 0 #BC0000;
+    box-shadow: 0 4px 0 var(--btn_col4_shadow);
 }
 
 .btn-column4:hover {
-    background: #FF3F3F;
-    box-shadow: 0 4px 0 #DE0000;
+    background: var(--btn_col4_hover_bg);
+    box-shadow: 0 4px 0 var(--btn_col4_hover_shadow);
 }
 
 .btn-column4:active {
-    box-shadow: 0 0 0 #B92525;
+    box-shadow: 0 0 0 var(--btn_col4_active_shadow);
 }
 
 /* 第五列：白色按钮 */
 .btn-column5 {
-    background: rgb(229, 229, 229);
-    color: rgb(60, 60, 60);
-    box-shadow: 0 4px 0 rgb(180, 180, 180);
+    background: var(--btn_col5_bg);
+    color: var(--btn_col5_text);
+    box-shadow: 0 4px 0 var(--btn_col5_shadow);
 }
 
 .btn-column5:hover {
-    background: rgb(235, 235, 235);
-    box-shadow: 0 4px 0 rgb(200, 200, 200);
+    background: var(--btn_col5_hover_bg);
+    box-shadow: 0 4px 0 var(--btn_col5_hover_shadow);
 }
 
 .btn-column5:active {
-    box-shadow: 0 0 0 rgb(180, 180, 180);
+    box-shadow: 0 0 0 var(--btn_col5_shadow);
 }
 
-/**
- * 登录页面样式
- */
+/* 登录页面样式 */
 .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: #d8eaff;
+    background: var(--login-bg);
 }
 
 .login-box {
@@ -152,7 +303,7 @@ body {
     padding: 40px;
     width: 100%;
     max-width: 400px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-modal);
 }
 
 .login-logo {
@@ -189,6 +340,12 @@ body {
     font-size: 16px;
     margin-bottom: 16px;
     transition: border-color 0.2s;
+    background: var(--input-bg);
+    color: var(--text-primary);
+}
+
+.login-input::placeholder {
+    color: var(--input-placeholder);
 }
 
 .login-input:focus {
@@ -201,15 +358,13 @@ body {
 }
 
 .login-error {
-    color: #E74C3C;
+    color: var(--error-color);
     margin-bottom: 16px;
     text-align: center;
     font-size: 14px;
 }
 
-/**
- * 主页面布局
- */
+/* 主页面布局 */
 .main-container {
     display: flex;
     min-height: 100vh;
@@ -252,6 +407,18 @@ body {
     align-items: center;
     gap: 8px;
     width: 100%;
+    position: relative;
+}
+
+.nav-indicator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 24px;
+    background: var(--primary-color);
+    border-radius: 0 3px 3px 0;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-item {
@@ -267,23 +434,15 @@ body {
 }
 
 .nav-item:hover {
-    background: rgba(74, 144, 226, 0.1);
+    background: var(--nav-hover-bg);
 }
 
 .nav-item.active {
-    background: rgba(74, 144, 226, 0.15);
+    background: var(--nav-active-bg);
 }
 
 .nav-item.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 24px;
-    background: var(--primary-color);
-    border-radius: 0 3px 3px 0;
+    display: none;
 }
 
 .nav-item svg {
@@ -320,6 +479,22 @@ body {
     align-items: center;
 }
 
+.user-info-display {
+    flex: 1;
+}
+
+.user-info-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+}
+
+.user-info-value {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
 .user-avatar {
     width: 40px;
     height: 40px;
@@ -354,7 +529,7 @@ body {
     margin-bottom: 20px;
 }
 
-/* 工具栏按钮 - 使用统一的按钮样式 */
+/* 工具栏按钮 */
 .toolbar-btn {
     display: inline-flex;
     align-items: center;
@@ -368,18 +543,18 @@ body {
     transition: all 0.075s ease;
     user-select: none;
     position: relative;
-    background: rgb(229, 229, 229);
-    color: rgb(60, 60, 60);
-    box-shadow: 0 4px 0 rgb(180, 180, 180);
+    background: var(--toolbar_btn_bg);
+    color: var(--toolbar_btn_text);
+    box-shadow: 0 4px 0 var(--toolbar_btn_shadow);
 }
 
 .toolbar-btn:hover {
-    background: rgb(235, 235, 235);
-    box-shadow: 0 4px 0 rgb(200, 200, 200);
+    background: var(--toolbar_btn_hover_bg);
+    box-shadow: 0 4px 0 var(--toolbar_btn_hover_shadow);
 }
 
 .toolbar-btn:active {
-    box-shadow: 0 0 0 rgb(180, 180, 180);
+    box-shadow: 0 0 0 var(--toolbar_btn_shadow);
     transform: translateY(1px);
 }
 
@@ -403,7 +578,7 @@ body {
     align-items: center;
     gap: 16px;
     flex: 1;
-    background: white;
+    background: var(--white);
     border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: 8px 12px;
@@ -431,12 +606,12 @@ body {
 }
 
 .nav-btn:hover:not(:disabled) {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--nav-btn-hover-bg);
     color: var(--text-primary);
 }
 
 .nav-btn:active:not(:disabled) {
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--nav-btn-active-bg);
 }
 
 .nav-btn:disabled {
@@ -471,7 +646,7 @@ body {
 }
 
 .breadcrumb-item:hover {
-    background: rgba(74, 144, 226, 0.1);
+    background: var(--nav-hover-bg);
     color: var(--primary-color);
 }
 
@@ -482,7 +657,6 @@ body {
 
 .breadcrumb-item.active:hover {
     background: transparent;
-    color: var(--text-secondary);
 }
 
 .breadcrumb-separator {
@@ -495,7 +669,7 @@ body {
 .search-box {
     display: flex;
     align-items: center;
-    background: rgba(0, 0, 0, 0.03);
+    background: var(--search-box-bg);
     border-radius: 6px;
     padding: 6px 10px;
     min-width: 200px;
@@ -545,7 +719,7 @@ body {
 
 .file-item.selected {
     border-color: var(--primary-color);
-    background: #EBF5FF;
+    background: var(--bg-secondary);
 }
 
 .file-icon {
@@ -611,20 +785,20 @@ body {
 }
 
 .context-menu-item.danger {
-    color: #EE0000;
+    color: var(--danger-color);
 }
 
 .context-menu-item.danger svg {
-    color: #BC0000;
+    color: var(--danger-icon);
 }
 
-/* 模态框 - 高斯模糊弹窗样式 */
+/* 模态框 - 高斯模糊 */
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: var(--modal-overlay-bg);
+    backdrop-filter: blur(var(--modal-overlay-blur));
+    -webkit-backdrop-filter: blur(var(--modal-overlay-blur));
     opacity: 0;
     visibility: hidden;
     transition: 0.3s ease;
@@ -644,9 +818,9 @@ body {
     max-width: 460px;
     height: fit-content;
     padding: 30px;
-    background: #fff;
+    background: var(--white);
     border-radius: 20px;
-    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-modal);
     opacity: 0;
     visibility: hidden;
     transform: scale(0.9);
@@ -663,7 +837,7 @@ body {
 .modal-title {
     font-size: 20px;
     font-weight: 600;
-    color: #222;
+    color: var(--text-title);
     margin-bottom: 15px;
 }
 
@@ -675,6 +849,12 @@ body {
     font-size: 16px;
     margin-bottom: 20px;
     transition: border-color 0.2s;
+    background: var(--input-bg);
+    color: var(--text-primary);
+}
+
+.modal-input::placeholder {
+    color: var(--input-placeholder);
 }
 
 .modal-input:focus {
@@ -791,9 +971,107 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/**
- * 响应式设计 - 适配手机端
- */
+/* Toast 提示组件 */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: var(--toast-bg);
+    color: var(--toast-text);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: var(--shadow-toast);
+    border: 1px solid var(--toast-border);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    max-width: 300px;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast.success {
+    border-color: var(--toast-success-border);
+    color: var(--toast-success-text);
+}
+
+.toast.error {
+    border-color: var(--toast-error-border);
+    color: var(--toast-error-text);
+}
+
+.toast.warning {
+    border-color: var(--toast-warning-border);
+    color: var(--toast-warning-text);
+}
+
+.toast.info {
+    border-color: var(--toast-info-border);
+    color: var(--toast-info-text);
+}
+
+/* 深色模式样式 */
+body.dark-mode {
+    background-color: var(--dark_bg_primary) !important;
+    color: var(--dark_text_primary) !important;
+}
+
+/* 深色模式变量覆盖 */
+body.dark-mode {
+    --primary-color: var(--light_primary_color);
+    --primary-hover: var(--light_primary_hover);
+    --primary-active: var(--light_primary_active);
+    --bg-color: var(--dark_bg_primary);
+    --white: var(--dark_bg_secondary);
+    --bg-secondary: var(--dark_bg_secondary);
+    --border-color: var(--dark_border_color);
+    --text-primary: var(--dark_text_primary);
+    --text-secondary: var(--dark_text_secondary);
+    --text-title: var(--dark_text_primary);
+    --shadow: 0 2px 8px var(--dark_shadow_color);
+    --shadow-hover: 0 4px 12px var(--dark_shadow_color);
+    --shadow-modal: 0 10px 35px var(--dark_shadow_color);
+    --shadow-toast: var(--dark_toast_shadow);
+    --nav-hover-bg: var(--dark_bg_tertiary);
+    --nav-active-bg: var(--dark_bg_tertiary);
+    --nav-btn-hover-bg: var(--dark_bg_tertiary);
+    --nav-btn-active-bg: var(--dark_bg_tertiary);
+    --search-box-bg: var(--dark_bg_tertiary);
+    --modal-overlay-bg: var(--dark_modal_overlay_bg);
+    --modal-overlay-blur: 8px;
+    --toast-bg: var(--dark_toast_bg);
+    --toast-text: var(--dark_toast_text);
+    --toast-border: var(--dark_toast_border);
+    --toast-success-border: var(--dark_toast_success_border);
+    --toast-success-text: var(--dark_toast_success_text);
+    --toast-error-border: var(--dark_toast_error_border);
+    --toast-error-text: var(--dark_toast_error_text);
+    --toast-warning-border: var(--dark_toast_warning_border);
+    --toast-warning-text: var(--dark_toast_warning_text);
+    --toast-info-border: var(--dark_toast_info_border);
+    --toast-info-text: var(--dark_toast_info_text);
+    --login-bg: var(--dark_bg_primary);
+    --error-color: var(--dark_toast_error_text);
+    --danger-color: var(--dark_toast_error_text);
+    --danger-icon: var(--dark_toast_error_text);
+    --input-bg: var(--dark_input_bg);
+    --input-placeholder: var(--dark_input_placeholder);
+}
+
+/* END OF DARK MODE STYLES */
+
+/* 响应式设计 - 适配手机端 */
 
 /* 平板设备 */
 @media (max-width: 768px) {
@@ -1047,255 +1325,13 @@ body {
     }
 }
 
-/**
- * Toast 提示组件
- */
-.toast-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.toast {
-    background: white;
-    color: #333333;
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border: 1px solid #E1E5EB;
-    opacity: 0;
-    transform: translateX(100%);
-    transition: all 0.3s ease;
-    max-width: 300px;
-}
-
-.toast.show {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.toast.success {
-    border-color: #27AE60;
-    color: #27AE60;
-}
-
-.toast.error {
-    border-color: #E74C3C;
-    color: #E74C3C;
-}
-
-.toast.warning {
-    border-color: #F1C40F;
-    color: #F1C40F;
-}
-
-.toast.info {
-    border-color: #3498DB;
-    color: #3498DB;
-}
-
-/* 深色模式样式 */
-.dark-mode {
-    --bg-primary: #17181A;
-    --bg-secondary: #1a1b1f;
-    --bg-tertiary: #1d1d1d;
-    --text-primary: #eaeaea;
-    --text-secondary: #b8b8b8;
-    --border-color: #242424;
-    --shadow-color: #000000;
-}
-
-.dark-mode body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-}
-
-.dark-mode .sidebar {
-    background-color: var(--bg-secondary);
-    border-right-color: var(--border-color);
-}
-
-.dark-mode .nav-item {
-    color: var(--text-secondary);
-}
-
-.dark-mode .nav-item:hover,
-.dark-mode .nav-item.active {
-    background-color: var(--bg-tertiary);
-    color: var(--text-primary);
-}
-
-.dark-mode .topbar {
-    background-color: var(--bg-secondary);
-    border-bottom-color: var(--border-color);
-}
-
-.dark-mode .user-name {
-    color: var(--text-primary);
-}
-
-.dark-mode .content-area {
-    background-color: var(--bg-primary);
-}
-
-.dark-mode .file-grid {
-    background-color: var(--bg-primary);
-}
-
-.dark-mode .file-item {
-    background-color: var(--bg-secondary);
-    border-color: var(--border-color);
-}
-
-.dark-mode .file-item:hover {
-    background-color: var(--bg-tertiary);
-    box-shadow: 0 2px 8px var(--shadow-color);
-}
-
-.dark-mode .file-name {
-    color: var(--text-primary);
-}
-
-.dark-mode .breadcrumb {
-    color: var(--text-secondary);
-}
-
-.dark-mode .breadcrumb-item {
-    color: var(--text-secondary);
-}
-
-.dark-mode .breadcrumb-item:hover {
-    color: var(--text-primary);
-}
-
-.dark-mode .breadcrumb-item.active {
-    color: var(--text-primary);
-}
-
-.dark-mode .search-box {
-    background-color: var(--bg-tertiary);
-    border-color: var(--border-color);
-    color: var(--text-primary);
-}
-
-.dark-mode .search-box::placeholder {
-    color: var(--text-secondary);
-}
-
-.dark-mode .modal-overlay {
-    background-color: rgba(0, 0, 0, 0.7);
-}
-
-.dark-mode .modal {
-    background-color: var(--bg-secondary);
-    border-color: var(--border-color);
-}
-
-.dark-mode .modal-title {
-    color: var(--text-primary);
-}
-
-.dark-mode .modal-content {
-    color: var(--text-secondary);
-}
-
-.dark-mode .context-menu {
-    background-color: var(--bg-secondary);
-    border-color: var(--border-color);
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-.dark-mode .context-menu-item {
-    color: var(--text-primary);
-}
-
-.dark-mode .context-menu-item:hover {
-    background-color: var(--bg-tertiary);
-}
-
-.dark-mode .settings-section {
-    background-color: var(--bg-secondary);
-    border-color: var(--border-color);
-}
-
-.dark-mode .settings-title {
-    color: var(--text-primary);
-}
-
-.dark-mode .settings-item-label {
-    color: var(--text-secondary);
-}
-
-.dark-mode .settings-item-value {
-    color: var(--text-primary);
-}
-
-.dark-mode .login-box {
-    background-color: var(--bg-secondary);
-    border-color: var(--border-color);
-}
-
-.dark-mode .login-logo {
-    color: var(--text-primary);
-}
-
-.dark-mode .login-subtitle {
-    color: var(--text-secondary);
-}
-
-.dark-mode .login-input {
-    background-color: var(--bg-tertiary);
-    border-color: var(--border-color);
-    color: var(--text-primary);
-}
-
-.dark-mode .login-input::placeholder {
-    color: var(--text-secondary);
-}
-
-.dark-mode .toast {
-    background-color: var(--bg-secondary);
-    border-color: var(--border-color);
-    color: var(--text-primary);
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-.dark-mode .toast.error {
-    border-color: #ff6b6b;
-    color: #ff6b6b;
-}
-
-.dark-mode .toast.success {
-    border-color: #51cf66;
-    color: #51cf66;
-}
-
-.dark-mode .toast.warning {
-    border-color: #ffd43b;
-    color: #ffd43b;
-}
-
-.dark-mode .toast.info {
-    border-color: #339af0;
-    color: #339af0;
-}
-
-
-
 /* 手机端深色模式 */
 @media (max-width: 480px) {
-    .dark-mode .sidebar {
-        background-color: var(--bg-secondary);
-        border-top-color: var(--border-color);
+    body.dark-mode .sidebar {
+        border-top-color: var(--dark_border_color) !important;
     }
     
-    .dark-mode .topbar {
-        background-color: var(--bg-secondary);
+    body.dark-mode .topbar {
         border-bottom-color: var(--border-color);
     }
 }
