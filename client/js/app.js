@@ -1726,7 +1726,7 @@
                 console.log('发现新版本，创建更新提示...');
                 // 创建可点击的版本号链接
                 const link = document.createElement('a');
-                link.href = 'https://github.com/Lxh-2014/MingXing-WebYun';
+                link.href = 'https://github.com/Lxh-2014/MingXingDrive';
                 link.target = '_blank';
                 link.style.color = '#FFC90E';
                 link.style.cursor = 'pointer';
