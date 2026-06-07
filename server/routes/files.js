@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { t } = require('../utils/locale');
 
 const router = express.Router();
 const filesDir = path.join(__dirname, '../../files');
@@ -16,6 +17,14 @@ const INVALID_CHARS = /[\\/:*?"<>|]/;
  * 配置multer用于文件上传
  */
 const upload = multer({ dest: filesDir });
+
+/**
+ * 获取文件根目录
+ * GET /api/files/root
+ */
+router.get('/root', (req, res) => {
+    res.json({ success: true, root: filesDir });
+});
 
 /**
  * 获取文件列表
@@ -68,7 +77,7 @@ router.get('/list', (req, res) => {
  */
 router.post('/upload', upload.single('file'), (req, res) => {
     if (!req.file) {
-        return res.status(400).json({ success: false, message: '请选择要上传的文件' });
+        return res.status(400).json({ success: false, message: t('files.selectFile') });
     }
 
     try {
@@ -95,13 +104,13 @@ router.post('/upload', upload.single('file'), (req, res) => {
         // 将临时文件移动到目标位置
         fs.renameSync(req.file.path, targetPath);
         
-        res.json({ success: true, message: '文件上传成功', file: { ...req.file, path: targetPath } });
+        res.json({ success: true, message: t('files.uploadSuccess'), file: { ...req.file, path: targetPath } });
     } catch (error) {
         // 如果移动失败，删除临时文件
         if (req.file && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
         }
-        res.status(500).json({ success: false, message: '文件上传失败: ' + error.message });
+        res.status(500).json({ success: false, message: t('files.uploadFailed') + ': ' + error.message });
     }
 });
 
@@ -114,25 +123,25 @@ router.post('/newfolder', (req, res) => {
     const targetDir = parent || filesDir;
 
     if (!name) {
-        return res.status(400).json({ success: false, message: '请输入文件夹名称' });
+        return res.status(400).json({ success: false, message: t('files.enterFolderName') });
     }
 
     if (INVALID_CHARS.test(name)) {
-        return res.status(400).json({ success: false, message: '文件名不能包含下列任何字符：\/:*?"<>\|'});
+        return res.status(400).json({ success: false, message: t('files.invalidChars') });
     }
 
     if (RESERVED_NAMES.includes(name.toUpperCase())) {
-        return res.status(400).json({ success: false, message: '指定的设备名无效' });
+        return res.status(400).json({ success: false, message: t('files.invalidDeviceName') });
     }
 
     const newFolderPath = path.join(targetDir, name);
 
     if (fs.existsSync(newFolderPath)) {
-        return res.status(400).json({ success: false, message: `此目标已包含名为“${name}”的文件夹。` });
+        return res.status(400).json({ success: false, message: t('files.folderExists', { name }) });
     }
 
     fs.mkdirSync(newFolderPath);
-    res.json({ success: true, message: '文件夹创建成功' });
+    res.json({ success: true, message: t('files.folderCreated') });
 });
 
 /**
@@ -143,11 +152,11 @@ router.post('/delete', (req, res) => {
     const { path: itemPath } = req.body;
 
     if (!itemPath) {
-        return res.status(400).json({ success: false, message: '请指定要删除的路径' });
+        return res.status(400).json({ success: false, message: t('files.specifyPath') });
     }
 
     if (!fs.existsSync(itemPath)) {
-        return res.status(404).json({ success: false, message: '文件或文件夹不存在' });
+        return res.status(404).json({ success: false, message: t('files.notExist') });
     }
 
     const stats = fs.statSync(itemPath);
@@ -158,9 +167,9 @@ router.post('/delete', (req, res) => {
         } else {
             fs.unlinkSync(itemPath);
         }
-        res.json({ success: true, message: '删除成功' });
+        res.json({ success: true, message: t('files.deleted') });
     } catch (error) {
-        res.status(500).json({ success: false, message: '删除失败' });
+        res.status(500).json({ success: false, message: t('files.deleteFailed') });
     }
 });
 
@@ -172,29 +181,29 @@ router.post('/rename', (req, res) => {
     const { oldPath, newName } = req.body;
 
     if (!oldPath || !newName) {
-        return res.status(400).json({ success: false, message: '请提供旧路径和新名称' });
+        return res.status(400).json({ success: false, message: t('files.provideOldPathAndNewName') });
     }
 
     if (INVALID_CHARS.test(newName)) {
-        return res.status(400).json({ success: false, message: '文件名不能包含下列任何字符：\/:*?"<>\|'});
+        return res.status(400).json({ success: false, message: t('files.invalidChars') });
     }
 
     if (RESERVED_NAMES.includes(newName.toUpperCase())) {
-        return res.status(400).json({ success: false, message: '指定的设备名无效' });
+        return res.status(400).json({ success: false, message: t('files.invalidDeviceName') });
     }
 
     const parentDir = path.dirname(oldPath);
     const newPath = path.join(parentDir, newName);
 
     if (fs.existsSync(newPath)) {
-        return res.status(400).json({ success: false, message: `此目标已包含名为“${newName}”的文件夹。` });
+        return res.status(400).json({ success: false, message: t('files.folderExists', { name: newName }) });
     }
 
     try {
         fs.renameSync(oldPath, newPath);
-        res.json({ success: true, message: '重命名成功' });
+        res.json({ success: true, message: t('files.renamed') });
     } catch (error) {
-        res.status(500).json({ success: false, message: '重命名失败' });
+        res.status(500).json({ success: false, message: t('files.renameFailed') });
     }
 });
 
@@ -206,11 +215,11 @@ router.get('/info', (req, res) => {
     const { path: itemPath } = req.query;
 
     if (!itemPath) {
-        return res.status(400).json({ success: false, message: '请指定文件路径' });
+        return res.status(400).json({ success: false, message: t('files.specifyFilePath') });
     }
 
     if (!fs.existsSync(itemPath)) {
-        return res.status(404).json({ success: false, message: '文件不存在' });
+        return res.status(404).json({ success: false, message: t('files.fileNotFound') });
     }
 
     const stats = fs.statSync(itemPath);
@@ -235,16 +244,16 @@ router.get('/download', (req, res) => {
     const { path: itemPath } = req.query;
 
     if (!itemPath) {
-        return res.status(400).json({ success: false, message: '请指定文件路径' });
+        return res.status(400).json({ success: false, message: t('files.specifyFilePath') });
     }
 
     if (!fs.existsSync(itemPath)) {
-        return res.status(404).json({ success: false, message: '文件不存在' });
+        return res.status(404).json({ success: false, message: t('files.fileNotFound') });
     }
 
     const stats = fs.statSync(itemPath);
     if (stats.isDirectory()) {
-        return res.status(400).json({ success: false, message: '无法下载文件夹' });
+        return res.status(400).json({ success: false, message: t('files.cannotDownloadFolder') });
     }
 
     res.download(itemPath);

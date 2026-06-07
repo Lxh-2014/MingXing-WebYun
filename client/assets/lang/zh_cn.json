@@ -1,0 +1,217 @@
+{
+    "app": {
+        "name": "明星云网盘",
+        "title": "明星云网盘",
+        "version": "1.0.1",
+        "storagePath": "./files",
+        "errors": {
+            "loadFilesRootFailed": "获取文件根目录失败"
+        }
+    },
+    "server": {
+        "startupMessage": "明星云网盘服务器已启动"
+    },
+    "auth": {
+        "missingUsernameOrPassword": "请输入用户名和密码",
+        "userNotFound": "用户不存在",
+        "wrongPassword": "密码错误",
+        "loginSuccess": "登录成功"
+    },
+    "login": {
+        "title": "明星云网盘",
+        "subtitle": "登录以继续使用",
+        "usernamePlaceholder": "请输入用户名",
+        "passwordPlaceholder": "请输入密码",
+        "submitBtn": "登 录",
+        "errorMsg": "登录失败，请检查用户名和密码"
+    },
+    "files": {
+        "loading": "",
+        "empty": "没有文件",
+        "networkError": "网络错误",
+        "selectFile": "请选择要上传的文件",
+        "uploadSuccess": "文件上传成功",
+        "uploadFailed": "文件上传失败",
+        "enterFolderName": "请输入文件夹名称",
+        "invalidChars": "文件名不能包含下列任何字符：\\/:*?\"<>|",
+        "invalidDeviceName": "指定的设备名无效",
+        "folderExists": "此目标已包含名为\"{name}\"的文件夹。",
+        "folderCreated": "文件夹创建成功",
+        "specifyPath": "请指定要删除的路径",
+        "notExist": "文件或文件夹不存在",
+        "deleted": "删除成功",
+        "deleteFailed": "删除失败",
+        "provideOldPathAndNewName": "请提供旧路径和新名称",
+        "renamed": "重命名成功",
+        "renameFailed": "重命名失败",
+        "specifyFilePath": "请指定文件路径",
+        "fileNotFound": "文件不存在",
+        "cannotDownloadFolder": "无法下载文件夹"
+    },
+    "settings": {
+        "userInfoTitle": "用户信息",
+        "versionInfoTitle": "版本信息",
+        "versionLabel": "版本号",
+        "storagePathLabel": "文件存储路径",
+        "usernameLabel": "用户名",
+        "changeAvatarBtn": "修改头像",
+        "darkModeTitle": "深色模式",
+        "switchLabel": "启用深色模式",
+        "settingsTitle": "设置",
+        "logoutBtn": "退出登录"
+    },
+    "modals": {
+        "confirm": {
+            "title": "确认",
+            "cancel": "取消",
+            "confirm": "确认",
+            "deleteFile": "确定要删除此文件吗？",
+            "deleteFolder": "确定要删除此文件夹吗？",
+            "logout": "确定要退出登录吗？"
+        },
+        "newFolder": {
+            "title": "新建文件夹",
+            "placeholder": "请输入文件夹名称",
+            "defaultName": "新建文件夹",
+            "cancel": "取消",
+            "confirm": "确定"
+        },
+        "rename": {
+            "title": "重命名",
+            "placeholder": "请输入新名称",
+            "cancel": "取消",
+            "confirm": "确定",
+            "pleaseEnterNewName": "请输入新名称",
+            "renameFailed": "重命名失败"
+        },
+        "fileInfo": {
+            "title": "文件信息"
+        },
+        "folderInfo": {
+            "title": "文件夹信息"
+        },
+        "delete": {
+            "title": "确认删除",
+            "confirmDeleteFolder": "确认删除文件夹 \"{name}\" 吗？",
+            "confirmDeleteFile": "确认删除文件 \"{name}\" 吗？",
+            "cannotUndo": "此操作无法撤销。",
+            "cancel": "取消",
+            "confirm": "删除",
+            "deleteFailed": "删除失败",
+            "networkError": "网络错误"
+        },
+        "changeAvatar": {
+            "title": "修改头像",
+            "uploadCustomAvatar": "上传自定义头像：",
+            "chooseImage": "选择图片",
+            "uploadHint": "点击上传头像",
+            "orChooseColor": "或选择头像颜色：",
+            "cancel": "取消"
+        },
+        "logout": {
+            "title": "退出登录",
+            "cancel": "取消",
+            "confirm": "退出"
+        },
+        "prompt": {
+            "title": "输入",
+            "ok": "确定",
+            "cancel": "取消",
+            "newFolder": "请输入新文件夹名称：",
+            "rename": "请输入新名称："
+        },
+        "info": {
+            "title": "信息",
+            "ok": "确定",
+            "close": "关闭",
+            "fileInfo": "文件信息",
+            "folderInfo": "文件夹信息",
+            "fileName": "文件名",
+            "folderName": "文件夹名称",
+            "fileType": "文件类型",
+            "location": "位置",
+            "size": "大小",
+            "allocatedSize": "占用空间",
+            "created": "创建时间",
+            "modified": "修改时间",
+            "accessed": "访问时间",
+            "getInfoFailed": "获取文件信息失败",
+            "getFolderInfoFailed": "获取文件夹信息失败"
+        },
+        "message": {
+            "hint": "提示",
+            "error": "错误",
+            "pleaseEnterFolderName": "请输入文件夹名称",
+            "newFolderFailed": "新建文件夹失败",
+            "rootDirNoInfo": "根目录不支持查看详细信息",
+            "uploadFailed": "上传文件失败"
+        }
+    },
+    "toast": {
+        "success": {
+            "upload": "上传成功",
+            "newFolder": "文件夹创建成功",
+            "delete": "删除成功",
+            "rename": "重命名成功",
+            "download": "下载成功"
+        },
+        "error": {
+            "upload": "上传失败",
+            "newFolder": "文件夹创建失败",
+            "delete": "删除失败",
+            "rename": "重命名失败",
+            "download": "下载失败",
+            "network": "网络错误",
+            "fileNotFound": "文件不存在",
+            "folderNotFound": "文件夹不存在"
+        },
+        "warning": {
+            "emptyName": "名称不能为空",
+            "invalidName": "名称包含非法字符",
+            "nameExists": "名称已存在"
+        }
+    },
+    "contextMenu": {
+        "download": "下载",
+        "rename": "重命名",
+        "info": "详细信息",
+        "delete": "删除",
+        "newFolder": "新建文件夹",
+        "uploadFile": "上传文件"
+    },
+    "toolbar": {
+        "newFolder": "创建新文件夹",
+        "upload": "上传文件",
+        "back": "返回",
+        "forward": "前进",
+        "up": "向上",
+        "refresh": "刷新",
+        "search": "在此处搜索...",
+        "view": "查看",
+        "type": "类型",
+        "dateModified": "修改日期",
+        "size": "大小",
+        "noFiles": "没有文件",
+        "rootDir": "根目录",
+        "networkError": "网络错误"
+    },
+    "fileTypes": {
+        "folder": "文件夹",
+        "file": "文件",
+        "image": "图片",
+        "video": "视频",
+        "audio": "音频",
+        "document": "文档",
+        "bytes": "字节"
+    },
+    "dateFormat": {
+        "year": "年",
+        "month": "月",
+        "day": "日",
+        "separator": "，"
+    },
+    "sidebar": {
+        "files": "文件",
+        "settings": "设置"
+    }
+}
