@@ -97,7 +97,7 @@ app.get('/api/version', (req, res) => {
 
 // 代理获取远程版本号（避免 CORS）
 app.get('/api/remote-version', (req, res) => {
-    https.get('https://lxh-2014.github.io/MingXing-WebYun-Update/version.json', (httpsRes) => {
+    https.get('https://lxh-2014.github.io/MingXingDrive-Update/version.json', (httpsRes) => {
         let data = '';
         
         httpsRes.on('data', (chunk) => {
@@ -107,10 +107,14 @@ app.get('/api/remote-version', (req, res) => {
         httpsRes.on('end', () => {
             try {
                 const versionData = JSON.parse(data);
-                res.json({ version: versionData.version });
+                // 返回完整的版本数据，确保 can_UpdateVersions 字段存在
+                res.json({
+                    version: versionData.version,
+                    can_UpdateVersions: versionData.can_UpdateVersions || []
+                });
             } catch (error) {
-                // 如果不是JSON格式，直接返回文本
-                res.json({ version: data.trim() });
+                // 如果不是JSON格式，返回默认结构
+                res.json({ version: data.trim(), can_UpdateVersions: [] });
             }
         });
         

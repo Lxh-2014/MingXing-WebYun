@@ -81,14 +81,14 @@ router.post('/upload', upload.single('file'), (req, res) => {
     }
 
     try {
-        // 获取目标目录
-        let targetDir = req.body.folder || filesDir;
-        
-        // 处理路径：如果是相对路径，转换为完整路径
-        if (typeof targetDir === 'string') {
-            const isAbsolutePath = path.isAbsolute(targetDir);
-            if (!isAbsolutePath && (targetDir.startsWith('/') || targetDir.startsWith('\\'))) {
-                targetDir = path.join(filesDir, targetDir.replace(/\//g, path.sep));
+        // 获取目标目录，默认为文件根目录
+        let targetDir = filesDir;
+        if (req.body.folder && typeof req.body.folder === 'string') {
+            const folder = req.body.folder.trim();
+            // 去掉开头的分隔符，统一作为相对路径处理
+            const cleanFolder = folder.replace(/^[\\/]+/, '').replace(/\//g, path.sep);
+            if (cleanFolder) {
+                targetDir = path.join(filesDir, cleanFolder);
             }
         }
 
@@ -100,10 +100,10 @@ router.post('/upload', upload.single('file'), (req, res) => {
         // 处理中文文件名
         const originalname = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
         const targetPath = path.join(targetDir, originalname);
-        
+
         // 将临时文件移动到目标位置
         fs.renameSync(req.file.path, targetPath);
-        
+
         res.json({ success: true, message: t('files.uploadSuccess'), file: { ...req.file, path: targetPath } });
     } catch (error) {
         // 如果移动失败，删除临时文件

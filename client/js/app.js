@@ -1,4 +1,4 @@
-﻿const App = {
+﻿﻿const App = {
     username: null,
     userId: null,
     currentPage: 'login',
@@ -97,7 +97,7 @@
                 app: { 
                     name: '明星云网盘', 
                     title: '明星云网盘', 
-                    version: '1.0.1', 
+                    version: '1.0.2-beta-1', 
                     storagePath: './files',
                     errors: { loadFilesRootFailed: '获取文件根目录失败' }
                 },
@@ -1720,9 +1720,12 @@
             }
             const remoteData = await remoteResponse.json();
             const latestVersion = remoteData.version;
+            const canUpdateVersions = remoteData.can_UpdateVersions || [];
             console.log('远程版本号:', latestVersion);
+            console.log('可更新版本列表:', canUpdateVersions);
             
-            if (this.isVersionNewer(latestVersion, currentVersion)) {
+            // 检查是否可以更新：当前版本在可更新列表中
+            if (canUpdateVersions.includes(currentVersion)) {
                 console.log('发现新版本，创建更新提示...');
                 // 创建可点击的版本号链接
                 const link = document.createElement('a');
@@ -1731,7 +1734,7 @@
                 link.style.color = '#FFC90E';
                 link.style.cursor = 'pointer';
                 link.style.textDecoration = 'underline';
-                link.title = '可更新';
+                link.title = `可更新 (${latestVersion})`;
                 link.textContent = `⚠ ${currentVersion}`;
                 // 添加动画样式
                 link.style.opacity = '0';
@@ -1749,7 +1752,7 @@
                 
                 console.log('更新提示已创建');
             } else {
-                console.log('当前版本已是最新');
+                console.log('当前版本不在可更新列表中');
             }
         } catch (error) {
             console.error('检查版本更新失败:', error.message);
@@ -1760,7 +1763,8 @@
         const newParts = newVersion.split('.').map(Number);
         const oldParts = oldVersion.split('.').map(Number);
         
-        for (let i = 0; i < Math.max(newParts.length, oldParts.length); i++) {
+        // 跳过主版本号（索引0），从次版本号开始比较
+        for (let i = 1; i < Math.max(newParts.length, oldParts.length); i++) {
             const newPart = newParts[i] || 0;
             const oldPart = oldParts[i] || 0;
             

@@ -1,6 +1,6 @@
 {
-  "name": "mingxing-webyun",
-  "version": "1.0.1",
+  "name": "mingxing-drive",
+  "version": "1.0.2-beta-1",
   "description": "明星云网盘",
   "main": "server/index.js",
   "scripts": {
